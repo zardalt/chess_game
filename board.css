@@ -1,0 +1,115 @@
+@font-face {
+  font-family: AsapSharp;
+  src: url("./assets/fonts/AsapSharp-Italic-VariableFont_wdth\,wght.ttf")
+    format(truetype);
+  font-style: italic;
+  font-weight: 100 900;
+}
+
+@font-face {
+  font-family: AsapSharp;
+  src: url("./assets/fonts/AsapSharp-VariableFont_wdth\,wght.ttf")
+    format(truetype);
+  font-style: normal;
+  font-weight: 100 900;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  font-family: AsapSharp, Arial;
+}
+
+:root {
+  --primary: white;
+  --accent: teal;
+
+  --playarea-offset: 2em;
+  --side-offset: calc(
+    var(--playarea-offset) / 3
+  ); /*3 is a magic number used to center the text*/
+}
+
+body {
+  display: flex;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--accent);
+}
+
+button {
+  border: none;
+  appearance: none;
+
+  &:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+#board {
+  aspect-ratio: 1;
+  width: 75%;
+  max-width: 500px;
+  background-color: var(--primary);
+  position: relative;
+}
+
+#board > p {
+  color: var(--accent);
+  position: absolute;
+  display: flex;
+  justify-content: space-around;
+}
+
+#whiteAlphabets,
+#blackAlphabets {
+  left: 0;
+  right: 0;
+  padding-inline: var(--playarea-offset);
+}
+
+#whiteAlphabets {
+  bottom: var(--side-offset);
+}
+
+#blackAlphabets {
+  top: var(--side-offset);
+}
+
+#leftNumbers,
+#rightNumbers {
+  top: 0;
+  bottom: 0;
+  flex-direction: column;
+  padding-block: var(--playarea-offset);
+}
+
+#leftNumbers {
+  left: var(--side-offset);
+}
+
+#rightNumbers {
+  right: var(--side-offset);
+}
+
+#playArea {
+  position: absolute;
+  inset: var(--playarea-offset);
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  border: 2px solid var(--accent);
+
+  & > button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+
+    & > img {
+      width: 85%;
+    }
+  }
+}
