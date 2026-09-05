@@ -1,6 +1,7 @@
 import Chess from "./chess.js";
-import { isMultipleOf } from "./utils.js";
-export default class Board {
+import ChessState from "./chess_state.js";
+import { isMultipleOf, match } from "./utils.js";
+export default class Board extends ChessState {
     board;
     colorOne = "#ffffff";
     colorTwo = "teal";
@@ -39,23 +40,49 @@ export default class Board {
         55: Chess.piecesImgs.WHITE_PAWN,
     };
     constructor(element) {
+        super();
         this.board = element;
         this.setupBoard();
     }
     setupBoard() {
+        this.placePieces();
+    }
+    placePieces() {
         for (let i = 0; i < 8; i++) {
             let cellColor = isMultipleOf(i, 2) ? this.colorOne : this.colorTwo;
             for (let j = 0; j < 8; j++) {
                 const loopIndex = i * 8 + j;
+                const cellId = Chess.convertNumericPosToAlpha(loopIndex);
+                const pieceInfo = {};
                 const cell = document.createElement("button");
                 cell.style.backgroundColor = cellColor;
-                cell.id = Chess.convertNumericPosToAlpha(loopIndex);
+                cell.id = cellId;
                 const cellPiece = document.createElement("img");
                 const cellPieceImg = this.defaultBoardSetup[loopIndex];
-                cellPiece.src = cellPieceImg ? cellPieceImg : "";
+                if (cellPieceImg) {
+                    const cellImg = Chess.getImgPath(cellPieceImg);
+                    cellPiece.src = cellImg;
+                    pieceInfo.img = cellImg;
+                    const splCellPieceImg = cellPieceImg.split("-");
+                    pieceInfo.piece = splCellPieceImg[0];
+                    pieceInfo.pieceColor = match(splCellPieceImg[1], {
+                        b: "black",
+                        w: "white",
+                    });
+                    pieceInfo.pieceState = match(splCellPieceImg[0], {
+                        king: { hasCastled: false },
+                        pawn: { hasMoved: false },
+                        rook: { hasMoved: false },
+                    }, null);
+                    match(pieceInfo.pieceColor, {
+                        white: this.whitePiecesPos,
+                        black: this.blackPiecesPos,
+                    }, []).push(cellId);
+                }
                 cell.disabled = true;
                 cell.appendChild(cellPiece);
                 this.board.appendChild(cell);
+                this.boardState[cellId] = pieceInfo;
                 cellColor = cellColor === this.colorOne ? this.colorTwo : this.colorOne;
             }
         }

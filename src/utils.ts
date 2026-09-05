@@ -14,3 +14,16 @@ export function assert(condition: any) {
       `Assertion Error: Assertion failed for condition ${condition}`,
     );
 }
+
+export function match<T extends string | number | symbol, U, V>(
+  value: Partial<T>,
+  cases: Record<T, U>,
+  def?: V,
+): U | V {
+  for (const pattern in cases) {
+    if (pattern === value) return cases[pattern];
+  }
+
+  if (def !== undefined) return def;
+  throw new Error(`Could not find any match for value ${String(value)}`);
+}

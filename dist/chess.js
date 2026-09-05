@@ -6,24 +6,26 @@ const Chess = {
     convertNumericPosToAlpha(n) {
         const rank = this.rankNotation[n % 8];
         const file = this.fileNotation[Math.floor(n / 8)];
-        console.debug(rank, file, n);
         assert(rank);
         assert(file);
         return rank + file;
     },
     piecesImgs: {
-        BLACK_ROOK: "../assets/pieces/rook-b.svg",
-        BLACK_KNIGHT: "../assets/pieces/knight-b.svg",
-        BLACK_BISHOP: "../assets/pieces/bishop-b.svg",
-        BLACK_KING: "../assets/pieces/king-b.svg",
-        BLACK_QUEEN: "../assets/pieces/queen-b.svg",
-        BLACK_PAWN: "../assets/pieces/pawn-b.svg",
-        WHITE_ROOK: "../assets/pieces/rook-w.svg",
-        WHITE_PAWN: "../assets/pieces/pawn-w.svg",
-        WHITE_KNIGHT: "../assets/pieces/knight-w.svg",
-        WHITE_BISHOP: "../assets/pieces/bishop-w.svg",
-        WHITE_KING: "../assets/pieces/king-w.svg",
-        WHITE_QUEEN: "../assets/pieces/queen-w.svg",
+        BLACK_ROOK: "rook-b",
+        BLACK_KNIGHT: "knight-b",
+        BLACK_BISHOP: "bishop-b",
+        BLACK_KING: "king-b",
+        BLACK_QUEEN: "queen-b",
+        BLACK_PAWN: "pawn-b",
+        WHITE_ROOK: "rook-w",
+        WHITE_PAWN: "pawn-w",
+        WHITE_KNIGHT: "knight-w",
+        WHITE_BISHOP: "bishop-w",
+        WHITE_KING: "king-w",
+        WHITE_QUEEN: "queen-w",
+    },
+    getImgPath(piece) {
+        return `../assets/pieces/${piece}.svg`;
     },
 };
 export default Chess;
