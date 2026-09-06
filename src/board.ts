@@ -4,6 +4,7 @@ import Chess, {
   type PieceType,
   PieceImgs,
   PieceState,
+  PieceColor,
 } from "./chess.js";
 import ChessState from "./chess_state.js";
 import { isMultipleOf, match } from "./utils.js";
@@ -13,6 +14,8 @@ export default class Board {
 
   colorOne = "#ffffff";
   colorTwo = "teal";
+
+  pieceFacingDown: PieceColor = "white";
 
   defaultBoardSetup: Record<number, PieceImgs> = {
     0: Chess.piecesImgs.BLACK_ROOK!,
@@ -103,7 +106,10 @@ export default class Board {
                 return { hasCastled: false } as PieceState;
               },
               pawn: () => {
-                return { hasMoved: false } as PieceState;
+                return {
+                  hasMoved: false,
+                  enPassantLiable: false,
+                } as PieceState;
               },
               rook: () => {
                 return { hasMoved: false } as PieceState;
@@ -113,7 +119,7 @@ export default class Board {
           );
 
           match(
-            pieceInfo.pieceColor,
+            pieceInfo.pieceColor!,
             {
               white: () => ChessState.whitePiecesPos,
               black: () => ChessState.blackPiecesPos,

@@ -1,6 +1,6 @@
 import { PieceType } from "../chess.js";
 
-export default abstract class Piece {
+export default abstract class Piece<T> {
   abstract name: PieceType;
   abstract calculateMoves(): void;
   abstract calculateValidMoves(): void;
@@ -9,9 +9,9 @@ export default abstract class Piece {
   signal;
   position;
   moves: string[] | null = null;
-  validMoves: string[] | null = null;
+  validMoves: T | null = null;
 
-  constructor(signal: AbortSignal, position: string) {
+  constructor(position: string, signal?: AbortSignal) {
     this.signal = signal;
     this.position = position;
   }

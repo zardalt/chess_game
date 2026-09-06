@@ -30,6 +30,10 @@
   --side-offset: calc(
     var(--playarea-offset) / 3
   ); /*3 is a magic number used to center the text*/
+
+  --full: calc(infinity * 1px);
+
+  --move: purple;
 }
 
 body {
@@ -111,5 +115,31 @@ button {
     & > img {
       width: 85%;
     }
+  }
+}
+
+.hint {
+  position: relative;
+  --ring-size: 0.9em;
+  --ring-thickness: 0.55em;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    border-radius: var(--full);
+  }
+
+  &::before {
+    inset: var(--ring-size);
+  }
+
+  &::after {
+    inset: calc(var(--ring-size) + var(--ring-thickness));
+    background-color: inherit;
+  }
+
+  &.move::before {
+    background-color: var(--move);
   }
 }

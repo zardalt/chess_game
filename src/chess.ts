@@ -1,4 +1,5 @@
 import Board from "./board.js";
+import ChessState from "./chess_state.js";
 import Pawn from "./pieces/pawn.js";
 import { assert } from "./utils.js";
 
@@ -11,6 +12,7 @@ type Chess = {
   piecesImgs: Record<string, PieceImgs>;
   getImgPath(piece: string): string;
   offsetPosition(ltrPos: string, offsetUnit: [number, number]): string;
+  getOppPieceColor(): PieceColor;
 };
 
 const Chess: Chess = {
@@ -63,6 +65,9 @@ const Chess: Chess = {
 
     return newLtr + newNum;
   },
+  getOppPieceColor() {
+    return ChessState.turn === "white" ? "black" : "white";
+  },
 };
 
 export default Chess;
@@ -73,6 +78,7 @@ export type PieceType =
   "pawn" | "queen" | "rook" | "bishop" | "king" | "knight";
 export type PawnState = {
   hasMoved: boolean;
+  enPassantLiable: boolean;
 };
 export type RookState = {
   hasMoved: boolean;
@@ -83,6 +89,17 @@ export type KingState = {
 
 export type Pieces = Pawn;
 export type PieceState = PawnState | RookState | KingState;
+
+export type PieceMoves = {
+  move: string[];
+  capture: string[];
+};
+export type PawnMoves = PieceMoves & {
+  promote: PieceMoves;
+};
+export type KingMoves = PieceMoves & {
+  castle: string[];
+};
 
 export type PieceInfo = {
   img?: string;
