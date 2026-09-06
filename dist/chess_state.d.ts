@@ -1,8 +1,11 @@
-import { PieceInfo, PieceColor } from "./chess";
+import { PieceInfo, PieceColor, Pieces } from "./chess.js";
 export default class ChessState {
-    protected boardState: Record<string, PieceInfo>;
-    protected whitePiecesPos: string[];
-    protected blackPiecesPos: string[];
-    protected turn: PieceColor;
+    static boardState: Record<string, PieceInfo>;
+    static whitePiecesPos: string[];
+    static blackPiecesPos: string[];
+    static turn: PieceColor;
+    static controller: AbortController;
+    static listeners: Pieces[];
+    static addEvents(): void;
 }
 //# sourceMappingURL=chess_state.d.ts.map

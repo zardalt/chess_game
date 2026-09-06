@@ -3,14 +3,12 @@ import Chess, {
   type MinifiedPieceColor,
   type PieceType,
   PieceImgs,
-  KingState,
-  RookState,
-  PawnState,
+  PieceState,
 } from "./chess.js";
 import ChessState from "./chess_state.js";
 import { isMultipleOf, match } from "./utils.js";
 
-export default class Board extends ChessState {
+export default class Board {
   board: HTMLDivElement;
 
   colorOne = "#ffffff";
@@ -52,14 +50,13 @@ export default class Board extends ChessState {
   };
 
   constructor(element: HTMLDivElement) {
-    super();
-
     this.board = element;
     this.setupBoard();
   }
 
   setupBoard() {
     this.placePieces();
+    ChessState.addEvents();
   }
 
   placePieces() {
@@ -69,17 +66,21 @@ export default class Board extends ChessState {
       for (let j = 0; j < 8; j++) {
         const loopIndex = i * 8 + j;
         const cellId = Chess.convertNumericPosToAlpha(loopIndex);
-        const pieceInfo: PieceInfo = {};
 
         const cell = document.createElement("button");
         cell.style.backgroundColor = cellColor;
         cell.id = cellId;
+
+        const pieceInfo: PieceInfo = {
+          element: cell,
+        };
 
         const cellPiece = document.createElement("img");
         const cellPieceImg = this.defaultBoardSetup[loopIndex];
 
         if (cellPieceImg) {
           const cellImg = Chess.getImgPath(cellPieceImg);
+
           cellPiece.src = cellImg;
           pieceInfo.img = cellImg;
 
@@ -87,17 +88,26 @@ export default class Board extends ChessState {
             PieceType,
             MinifiedPieceColor,
           ];
-          pieceInfo.piece = splCellPieceImg[0];
+
+          pieceInfo.pieceName = splCellPieceImg[0];
+
           pieceInfo.pieceColor = match(splCellPieceImg[1], {
-            b: "black",
-            w: "white",
+            b: () => "black",
+            w: () => "white",
           });
+
           pieceInfo.pieceState = match(
             splCellPieceImg[0],
             {
-              king: { hasCastled: false } as KingState,
-              pawn: { hasMoved: false } as PawnState,
-              rook: { hasMoved: false } as RookState,
+              king: () => {
+                return { hasCastled: false } as PieceState;
+              },
+              pawn: () => {
+                return { hasMoved: false } as PieceState;
+              },
+              rook: () => {
+                return { hasMoved: false } as PieceState;
+              },
             },
             null,
           );
@@ -105,8 +115,8 @@ export default class Board extends ChessState {
           match(
             pieceInfo.pieceColor,
             {
-              white: this.whitePiecesPos,
-              black: this.blackPiecesPos,
+              white: () => ChessState.whitePiecesPos,
+              black: () => ChessState.blackPiecesPos,
             },
             [] as string[],
           ).push(cellId);
@@ -117,7 +127,7 @@ export default class Board extends ChessState {
         cell.appendChild(cellPiece);
         this.board.appendChild(cell);
 
-        this.boardState[cellId] = pieceInfo;
+        ChessState.boardState[cellId] = pieceInfo;
 
         cellColor = cellColor === this.colorOne ? this.colorTwo : this.colorOne;
       }

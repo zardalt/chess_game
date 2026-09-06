@@ -1,3 +1,4 @@
+import Pawn from "./pieces/pawn.js";
 export type PieceImgs = `${PieceType}-${MinifiedPieceColor}`;
 type Chess = {
     rankNotation: "abcdefgh";
@@ -5,6 +6,7 @@ type Chess = {
     convertNumericPosToAlpha(n: number): string;
     piecesImgs: Record<string, PieceImgs>;
     getImgPath(piece: string): string;
+    offsetPosition(ltrPos: string, offsetUnit: [number, number]): string;
 };
 declare const Chess: Chess;
 export default Chess;
@@ -20,10 +22,14 @@ export type RookState = {
 export type KingState = {
     hasCastled: boolean;
 };
+export type Pieces = Pawn;
+export type PieceState = PawnState | RookState | KingState;
 export type PieceInfo = {
     img?: string;
-    piece?: PieceType;
+    pieceName?: PieceType;
     pieceColor?: PieceColor;
-    pieceState?: PawnState | RookState | KingState | null;
+    pieceState?: PieceState | null;
+    piece?: Pieces | undefined;
+    element: HTMLButtonElement;
 };
 //# sourceMappingURL=chess.d.ts.map

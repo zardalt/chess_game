@@ -1,1 +1,1 @@
-{"version":3,"file":"pawn.d.ts","sourceRoot":"","sources":["../../src/pieces/pawn.ts"],"names":[],"mappings":"AAEA,MAAM,CAAC,OAAO,OAAO,IAAK,SAAQ,MAAM;CAAG"}
+{"version":3,"file":"pawn.d.ts","sourceRoot":"","sources":["../../src/pieces/pawn.ts"],"names":[],"mappings":"AAAA,OAAc,EAAE,SAAS,EAAE,MAAM,aAAa,CAAC;AAG/C,OAAO,KAAK,MAAM,aAAa,CAAC;AAEhC,MAAM,CAAC,OAAO,OAAO,IAAK,SAAQ,KAAK;IACrC,IAAI,EAAE,SAAS,CAAU;IAEzB,YAAY,MAAM,EAAE,WAAW,EAAE,QAAQ,EAAE,MAAM,EAEhD;IAED,cAAc,SAgBb;IAED,mBAAmB,IAAI,IAAI,CAM1B;IAED,iBAAiB,SAWhB;CACF"}

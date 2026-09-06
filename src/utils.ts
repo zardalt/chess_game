@@ -17,11 +17,11 @@ export function assert(condition: any) {
 
 export function match<T extends string | number | symbol, U, V>(
   value: Partial<T>,
-  cases: Record<T, U>,
+  cases: Record<T, () => U>,
   def?: V,
 ): U | V {
   for (const pattern in cases) {
-    if (pattern === value) return cases[pattern];
+    if (pattern === value) return cases[pattern]();
   }
 
   if (def !== undefined) return def;

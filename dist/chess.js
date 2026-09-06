@@ -27,6 +27,18 @@ const Chess = {
     getImgPath(piece) {
         return `../assets/pieces/${piece}.svg`;
     },
+    offsetPosition(ltrPos, offsetUnit) {
+        assert(ltrPos.length === 2);
+        const currLtrInd = [...this.rankNotation].findIndex((ltr) => ltr === ltrPos[0]);
+        const currNumInd = [...this.fileNotation].findIndex((num) => num === ltrPos[1]);
+        assert(currLtrInd !== undefined);
+        assert(currNumInd !== undefined);
+        const newLtr = this.rankNotation[currLtrInd + offsetUnit[0]];
+        const newNum = this.fileNotation[currNumInd + offsetUnit[1]];
+        assert(newLtr !== undefined);
+        assert(newNum !== undefined);
+        return newLtr + newNum;
+    },
 };
 export default Chess;
 function initChess() {

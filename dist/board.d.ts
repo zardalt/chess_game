@@ -1,6 +1,5 @@
 import { PieceImgs } from "./chess.js";
-import ChessState from "./chess_state.js";
-export default class Board extends ChessState {
+export default class Board {
     board: HTMLDivElement;
     colorOne: string;
     colorTwo: string;

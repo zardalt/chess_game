@@ -13,7 +13,7 @@ export function assert(condition) {
 export function match(value, cases, def) {
     for (const pattern in cases) {
         if (pattern === value)
-            return cases[pattern];
+            return cases[pattern]();
     }
     if (def !== undefined)
         return def;

@@ -1,4 +1,5 @@
 import Board from "./board.js";
+import Pawn from "./pieces/pawn.js";
 import { assert } from "./utils.js";
 
 export type PieceImgs = `${PieceType}-${MinifiedPieceColor}`;
@@ -9,6 +10,7 @@ type Chess = {
   convertNumericPosToAlpha(n: number): string;
   piecesImgs: Record<string, PieceImgs>;
   getImgPath(piece: string): string;
+  offsetPosition(ltrPos: string, offsetUnit: [number, number]): string;
 };
 
 const Chess: Chess = {
@@ -40,6 +42,27 @@ const Chess: Chess = {
   getImgPath(piece) {
     return `../assets/pieces/${piece}.svg`;
   },
+  offsetPosition(ltrPos, offsetUnit): string {
+    assert(ltrPos.length === 2);
+
+    const currLtrInd = [...this.rankNotation].findIndex(
+      (ltr) => ltr === ltrPos[0],
+    );
+    const currNumInd = [...this.fileNotation].findIndex(
+      (num) => num === ltrPos[1],
+    );
+
+    assert(currLtrInd !== undefined);
+    assert(currNumInd !== undefined);
+
+    const newLtr = this.rankNotation[currLtrInd + offsetUnit[0]]!;
+    const newNum = this.fileNotation[currNumInd + offsetUnit[1]];
+
+    assert(newLtr !== undefined);
+    assert(newNum !== undefined);
+
+    return newLtr + newNum;
+  },
 };
 
 export default Chess;
@@ -58,11 +81,16 @@ export type KingState = {
   hasCastled: boolean;
 };
 
+export type Pieces = Pawn;
+export type PieceState = PawnState | RookState | KingState;
+
 export type PieceInfo = {
   img?: string;
-  piece?: PieceType;
+  pieceName?: PieceType;
   pieceColor?: PieceColor;
-  pieceState?: PawnState | RookState | KingState | null;
+  pieceState?: PieceState | null;
+  piece?: Pieces | undefined;
+  element: HTMLButtonElement;
 };
 
 function initChess() {
