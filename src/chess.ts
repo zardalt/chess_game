@@ -94,8 +94,16 @@ export type PieceMoves = {
   move: string[];
   capture: string[];
 };
-export type PawnMoves = PieceMoves & {
-  promote: PieceMoves;
+export type PawnMoves = {
+  move: string[];
+  capture: {
+    capture: string[];
+    enPassant?: string;
+  };
+  promote: {
+    move?: string;
+    capture: string[];
+  };
 };
 export type KingMoves = PieceMoves & {
   castle: string[];

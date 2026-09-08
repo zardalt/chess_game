@@ -10,6 +10,9 @@ export default class Pawn extends Piece<PawnMoves> {
 
   constructor(position: string, signal?: AbortSignal) {
     super(position, signal);
+
+    (ChessState.boardState[position]!.pieceState as PawnState).enPassantLiable =
+      false;
   }
 
   canPromote(pos: string): boolean {
@@ -95,9 +98,10 @@ export default class Pawn extends Piece<PawnMoves> {
 
     this.validMoves = {
       move: [],
-      capture: [],
+      capture: {
+        capture: [],
+      },
       promote: {
-        move: [],
         capture: [],
       },
     };
@@ -111,7 +115,7 @@ export default class Pawn extends Piece<PawnMoves> {
       if (ChessState.boardState[pos]!.pieceName) break;
 
       if (this.canPromote(pos)) {
-        this.validMoves.promote.move.push(pos);
+        this.validMoves.promote.move = pos;
         continue;
       }
 
@@ -127,7 +131,7 @@ export default class Pawn extends Piece<PawnMoves> {
         return;
       }
 
-      this.validMoves?.capture.push(pos);
+      this.validMoves?.capture.capture.push(pos);
     });
   }
 

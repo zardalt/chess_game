@@ -72,7 +72,6 @@ export default class Board {
 
         const cell = document.createElement("button");
         cell.style.backgroundColor = cellColor;
-        cell.id = cellId;
 
         const pieceInfo: PieceInfo = {
           element: cell,
@@ -124,8 +123,8 @@ export default class Board {
               white: () => ChessState.whitePiecesPos,
               black: () => ChessState.blackPiecesPos,
             },
-            [] as string[],
-          ).push(cellId);
+            "" as unknown as Set<string>,
+          ).add(cellId);
         }
 
         cell.disabled = true;

@@ -15,11 +15,11 @@ export function assert(condition: any) {
     );
 }
 
-export function match<T extends string | number | symbol, U, V>(
+export function match<T extends string | number | symbol, U>(
   value: Partial<T>,
   cases: Record<T, () => U>,
-  def?: V,
-): U | V {
+  def?: U,
+): U {
   for (const pattern in cases) {
     if (pattern === value) return cases[pattern]();
   }
@@ -72,11 +72,8 @@ export function compare<T>(v1: T, v2: T): boolean {
   return true;
 }
 
-export function test(desc: string, testCase: () => void) {
-  try {
-    testCase();
-    console.log(`%c${desc} ...PASSED`, "color: blue;");
-  } catch {
-    console.log(`%c${desc} ...FAILED`, "color: red;");
-  }
+export function Trick<T, U = any>(vl: U) {
+  return vl as unknown as T;
 }
+
+export const emptyImage = new Image();

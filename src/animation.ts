@@ -1,7 +1,7 @@
-import ChessState, { CleanupCallback } from "./chess_state.js";
-import { assert, match } from "./utils.js";
+import ChessState from "./chess_state.js";
+import { assert, match, Trick } from "./utils.js";
 
-export type AnimationType = "move";
+export type AnimationType = "move" | "remove";
 type ChessAnimationOption = {
   fromPos?: string;
   toPos?: string;
@@ -9,7 +9,8 @@ type ChessAnimationOption = {
 
 export default class ChessAnimation {
   static isAnimating = false;
-  finished: Promise<void>;
+
+  finished!: Promise<Animation>;
 
   ANIMATION_OPTIONS: KeyframeAnimationOptions = {
     duration: 500,
@@ -18,31 +19,38 @@ export default class ChessAnimation {
   };
 
   constructor(
-    animationType: AnimationType,
-    options: ChessAnimationOption,
-    cleanupCallback: CleanupCallback,
+    animationType: AnimationType | AnimationType[],
+    options: ChessAnimationOption | ChessAnimationOption[],
   ) {
-    switch (animationType) {
-      case "move":
-        assert(options.toPos);
-        assert(options.fromPos);
+    if (ChessAnimation.isAnimating) return this;
 
-        this.finished = this.movePiece(
-          options.fromPos!,
-          options.toPos!,
-          cleanupCallback,
-        );
-        break;
-    }
-  }
-
-  async movePiece(
-    posFrom: string,
-    posTo: string,
-    cleanupCallback: CleanupCallback,
-  ) {
     ChessAnimation.isAnimating = true;
 
+    if (Array.isArray(animationType)) {
+      assert(Array.isArray(options));
+
+      this.finished = Trick<Promise<Animation>>(
+        Promise.allSettled(
+          animationType.map((type, index) =>
+            this.getAnimation(
+              type,
+              (options as ChessAnimationOption[])[index]!,
+            ),
+          ),
+        ),
+      );
+      return this;
+    }
+
+    assert(!Array.isArray(options));
+
+    this.finished = this.getAnimation(
+      animationType as AnimationType,
+      options as ChessAnimationOption,
+    );
+  }
+
+  movePiece(posFrom: string, posTo: string) {
     const fromState = ChessState.boardState[posFrom]!;
     const toState = ChessState.boardState[posTo]!;
     const fromElem = fromState.element;
@@ -50,25 +58,51 @@ export default class ChessAnimation {
     const fromElemBCR = fromElem.getBoundingClientRect();
     const toElemBCR = toElem.getBoundingClientRect();
 
-    await fromElem
-      .querySelector("img")!
-      .animate(
-        match(ChessState.pieceFacingDown, {
-          white: () => [
-            { translate: "0 0" },
-            {
-              translate: `${fromElemBCR.right - toElemBCR.right}px ${toElemBCR.bottom - fromElemBCR.bottom}px`,
-            },
-          ],
-          black: () => [
-            { translate: "0 0" },
-            {
-              translate: `${toElemBCR.right - fromElemBCR.right}px ${fromElemBCR.bottom - toElemBCR.bottom}px`,
-            },
-          ],
-        }),
-        this.ANIMATION_OPTIONS,
-      )
-      .finished.then(() => cleanupCallback(fromState, toState));
+    return fromElem.querySelector("img")!.animate(
+      match(ChessState.pieceFacingDown, {
+        white: () => [
+          { translate: "0 0" },
+          {
+            translate: `${toElemBCR.right - fromElemBCR.right}px ${toElemBCR.bottom - fromElemBCR.bottom}px`,
+          },
+        ],
+        black: () => [
+          { translate: "0 0" },
+          {
+            translate: `${fromElemBCR.right - toElemBCR.right}px ${fromElemBCR.bottom - toElemBCR.bottom}px`,
+          },
+        ],
+      }),
+      this.ANIMATION_OPTIONS,
+    ).finished;
+  }
+
+  removePiece(posTo: string) {
+    return ChessState.boardState[posTo]!.element.querySelector("img")!.animate(
+      [{ opacity: 1 }, { opacity: 0 }],
+      this.ANIMATION_OPTIONS,
+    ).finished;
+  }
+
+  getAnimation(
+    animationType: AnimationType,
+    options: ChessAnimationOption,
+  ): Promise<Animation> {
+    return match(animationType, {
+      move: () => {
+        assert((options as ChessAnimationOption).toPos);
+        assert((options as ChessAnimationOption).fromPos);
+
+        return this.movePiece(
+          (options as ChessAnimationOption).fromPos!,
+          (options as ChessAnimationOption).toPos!,
+        );
+      },
+      remove: () => {
+        assert((options as ChessAnimationOption).toPos);
+
+        return this.removePiece((options as ChessAnimationOption).toPos!);
+      },
+    });
   }
 }
