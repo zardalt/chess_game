@@ -106,6 +106,8 @@ export default class Pawn extends Piece<PawnMoves> {
       },
     };
 
+    // TODO: Make pawns capable of handling enpassant
+
     /*
      * If there's no piece in it's way, the pawn can move forward
      * unless it's a diagonal where the pawn can capture if the color is opposite of it's own
@@ -123,15 +125,31 @@ export default class Pawn extends Piece<PawnMoves> {
     }
 
     this.captureMoves.forEach((pos) => {
-      if (ChessState.boardState[pos]!.pieceColor !== Chess.getOppPieceColor())
-        return;
+      // Check for capturing first before enpassant
+      if (ChessState.boardState[pos]!.pieceColor === Chess.getOppPieceColor()) {
+        if (this.canPromote(pos)) {
+          this.validMoves?.promote.capture.push(pos);
+          return;
+        }
 
-      if (this.canPromote(pos)) {
-        this.validMoves?.promote.capture.push(pos);
+        this.validMoves?.capture.capture.push(pos);
         return;
+      } else {
+        if (this.validMoves?.capture.enPassant) return;
+        try {
+          const enPassantPos = match(ChessState.turn, {
+            white: () => Chess.offsetPosition(pos, [0, 1]),
+            black: () => Chess.offsetPosition(pos, [0, -1]),
+          });
+
+          if (
+            (ChessState.boardState[enPassantPos]!.pieceState as PawnState)
+              .enPassantLiable
+          ) {
+            this.validMoves!.capture.enPassant = [pos, enPassantPos];
+          }
+        } catch {}
       }
-
-      this.validMoves?.capture.capture.push(pos);
     });
   }
 
@@ -169,4 +187,6 @@ export default class Pawn extends Piece<PawnMoves> {
 
     fromState.hasMoved = true;
   }
+
+  // TODO: Make pawns capable of promoting
 }

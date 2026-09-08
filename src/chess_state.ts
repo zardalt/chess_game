@@ -83,6 +83,7 @@ export default class ChessState {
     // =================================
 
     // Default capture
+    // If it's a pawn, return capture.capture else just return capture
     match(
       piece.name,
       {
@@ -106,6 +107,29 @@ export default class ChessState {
 
       this.hints.push(toPos);
     });
+
+    // EnPassant capture
+    if (piece.name === "pawn") {
+      const enPassantPos = piece.validMoves!.capture.enPassant;
+      if (enPassantPos) {
+        const element = this.boardState[enPassantPos[0]]!.element;
+        assert(element);
+
+        element.disabled = false;
+        element.addEventListener(
+          "click",
+          () =>
+            this.capturePiece(pos, {
+              toPos: enPassantPos[0],
+              targetPos: enPassantPos[1],
+            }),
+          { signal: this.hintController.signal },
+        );
+        element.classList.add("hint", "capture");
+
+        this.hints.push(enPassantPos[0]);
+      }
+    }
   }
 
   static hideHints() {
@@ -153,10 +177,46 @@ export default class ChessState {
   static async capturePiece(from: string, captureOptions: CaptureOptions) {
     this.hideHints();
 
+    const fromState = ChessState.boardState[from]!;
+    const toState = ChessState.boardState[captureOptions.toPos]!;
+
+    const postMove = () => {
+      fromState.element.disabled = true;
+      this.postMove(fromState, toState);
+      fromState.piece!.pieceCallback(captureOptions.toPos);
+      this.updateState("move", fromState, toState);
+    };
+
     if (
       captureOptions.targetPos &&
-      captureOptions.toPos === captureOptions.targetPos
+      captureOptions.toPos !== captureOptions.targetPos
     ) {
+      await new ChessAnimation(
+        ["move", "remove"],
+        [
+          {
+            fromPos: from,
+            toPos: captureOptions.toPos,
+          },
+          { toPos: captureOptions.targetPos },
+        ],
+      ).finished;
+
+      const targetState = this.boardState[captureOptions.targetPos]!;
+
+      postMove();
+      this.updateState("remove", targetState);
+
+      let startInd = this.turn === "black" ? 1 : 0;
+      const piecePositions = [this.whitePiecesPos, this.blackPiecesPos];
+
+      piecePositions[startInd++ % 2]!.add(captureOptions.toPos).delete(from);
+      piecePositions[startInd % 2]!.delete(captureOptions.targetPos);
+
+      console.log(this.whitePiecesPos, this.blackPiecesPos);
+
+      this.switchTurn();
+      ChessAnimation.isAnimating = false;
     } else {
       // Default capture
       await new ChessAnimation(
@@ -170,13 +230,7 @@ export default class ChessState {
         ],
       ).finished;
 
-      const fromState = ChessState.boardState[from]!;
-      const toState = ChessState.boardState[captureOptions.toPos]!;
-
-      fromState.element.disabled = true;
-      this.postMove(fromState, toState);
-      fromState.piece!.pieceCallback(captureOptions.toPos);
-      this.updateState("move", fromState, toState);
+      postMove();
 
       let startInd = this.turn === "black" ? 1 : 0;
       const piecePositions = [this.whitePiecesPos, this.blackPiecesPos];
@@ -227,12 +281,12 @@ export default class ChessState {
         delete fromState!.pieceState;
         break;
       case "remove":
-        assert(toState);
-        delete toState!.piece;
-        delete toState!.pieceName;
-        delete toState!.pieceColor;
-        delete toState!.pieceState;
-        delete toState!.img;
+        assert(fromState);
+        delete fromState!.piece;
+        delete fromState!.pieceName;
+        delete fromState!.pieceColor;
+        delete fromState!.pieceState;
+        delete fromState!.img;
         break;
     }
   }

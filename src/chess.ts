@@ -77,8 +77,8 @@ export type MinifiedPieceColor = "b" | "w";
 export type PieceType =
   "pawn" | "queen" | "rook" | "bishop" | "king" | "knight";
 export type PawnState = {
-  hasMoved: boolean;
-  enPassantLiable: boolean;
+  hasMoved?: boolean;
+  enPassantLiable?: boolean;
 };
 export type RookState = {
   hasMoved: boolean;
@@ -98,7 +98,7 @@ export type PawnMoves = {
   move: string[];
   capture: {
     capture: string[];
-    enPassant?: string;
+    enPassant?: [string, string];
   };
   promote: {
     move?: string;
