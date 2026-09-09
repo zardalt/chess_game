@@ -1,6 +1,7 @@
 import ChessAnimation, { AnimationType } from "./animation.js";
 import Chess, { PieceInfo, PieceColor, PieceType } from "./chess.js";
 import { getPawnPromotion } from "./dialog.js";
+import Knight from "./pieces/knight.js";
 import Pawn from "./pieces/pawn.js";
 import Rook from "./pieces/rook.js";
 import { assert, match, Trick, emptyImage } from "./utils.js";
@@ -44,6 +45,11 @@ export default class ChessState {
           const rook = new Rook(pos, this.pieceController.signal);
           this.boardState[pos]!.piece = rook;
           rook.addEventListeners();
+          break;
+        case "knight":
+          const knight = new Knight(pos, this.pieceController.signal);
+          this.boardState[pos]!.piece = knight;
+          knight.addEventListeners();
           break;
       }
     });

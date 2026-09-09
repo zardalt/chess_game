@@ -5,7 +5,7 @@
 - Implement movement and capture logic for
   - ~~Pawn~~
   - ~~Rook~~
-  - Knight
+  - ~~Knight~~
   - Bishop
   - Queen
   - King

@@ -18,7 +18,7 @@ export default class Board {
   pieceFacingDown: PieceColor = "white";
 
   defaultBoardSetup: Record<number, PieceImgs> = {
-    // 0: Chess.piecesImgs.BLACK_ROOK!,
+    0: Chess.piecesImgs.BLACK_ROOK!,
     7: Chess.piecesImgs.BLACK_ROOK!,
     1: Chess.piecesImgs.BLACK_KNIGHT!,
     6: Chess.piecesImgs.BLACK_KNIGHT!,
@@ -26,7 +26,7 @@ export default class Board {
     5: Chess.piecesImgs.BLACK_BISHOP!,
     3: Chess.piecesImgs.BLACK_QUEEN!,
     4: Chess.piecesImgs.BLACK_KING!,
-    // 8: Chess.piecesImgs.BLACK_PAWN!,
+    8: Chess.piecesImgs.BLACK_PAWN!,
     9: Chess.piecesImgs.BLACK_PAWN!,
     10: Chess.piecesImgs.BLACK_PAWN!,
     11: Chess.piecesImgs.BLACK_PAWN!,
@@ -42,8 +42,7 @@ export default class Board {
     61: Chess.piecesImgs.WHITE_BISHOP!,
     59: Chess.piecesImgs.WHITE_QUEEN!,
     60: Chess.piecesImgs.WHITE_KING!,
-    // original is 48
-    8: Chess.piecesImgs.WHITE_PAWN!,
+    48: Chess.piecesImgs.WHITE_PAWN!,
     49: Chess.piecesImgs.WHITE_PAWN!,
     50: Chess.piecesImgs.WHITE_PAWN!,
     51: Chess.piecesImgs.WHITE_PAWN!,
