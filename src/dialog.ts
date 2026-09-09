@@ -12,9 +12,18 @@ const promotionPieces: PromotionPieces[] = [
 export async function getPawnPromotion(): Promise<PromotionPieces> {
   const cntrl = new AbortController();
 
-  Chess.pawnPromotionPopover.addEventListener("beforetoggle", (e) => {
-    if (e.newState === "closed") cntrl.abort();
-  });
+  Chess.pawnPromotionPopover.addEventListener(
+    "beforetoggle",
+    (e) => {
+      if (e.newState === "closed") {
+        ChessState.pawnPromotionPopoverAnchor?.style.removeProperty(
+          "anchor-name",
+        );
+        cntrl.abort();
+      }
+    },
+    { signal: cntrl.signal },
+  );
 
   const result = await new Promise((resolve) => {
     [...Chess.pawnPromotionPopover.children].forEach((child, index) => {

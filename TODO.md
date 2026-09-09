@@ -3,7 +3,8 @@
 ## Pieces
 
 - Implement movement and capture logic for
-  - Rook
+  - ~~Pawn~~
+  - ~~Rook~~
   - Knight
   - Bishop
   - Queen
@@ -11,4 +12,4 @@
 
 ## Pawns
 
-- Implement pawn promotion logic
+- ~~Implement pawn promotion logic~~

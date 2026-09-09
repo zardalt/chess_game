@@ -1,0 +1,4 @@
+When creating the logic for a new piece keep the following in mind:
+
+- Modify the switch statement in the ChessState.addEvents funtion
+- Modify the Pieces type in chess.ts

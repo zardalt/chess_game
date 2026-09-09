@@ -2,6 +2,7 @@ import ChessAnimation, { AnimationType } from "./animation.js";
 import Chess, { PieceInfo, PieceColor, PieceType } from "./chess.js";
 import { getPawnPromotion } from "./dialog.js";
 import Pawn from "./pieces/pawn.js";
+import Rook from "./pieces/rook.js";
 import { assert, match, Trick, emptyImage } from "./utils.js";
 
 type CaptureOptions = {
@@ -19,7 +20,8 @@ export default class ChessState {
   static pieceFacingDown: PieceColor = "white";
   static hints: string[] = [];
   static currentHintPos: string | null;
-  static currentPromotionPopover: HTMLButtonElement | null = null;
+  static currentPromotionPopover: HTMLButtonElement[] = [];
+  static pawnPromotionPopoverAnchor: HTMLButtonElement | null = null;
 
   static addEvents() {
     this.pieceController = new AbortController();
@@ -37,6 +39,11 @@ export default class ChessState {
           const pawn = new Pawn(pos, this.pieceController.signal);
           this.boardState[pos]!.piece = pawn;
           pawn.addEventListeners();
+          break;
+        case "rook":
+          const rook = new Rook(pos, this.pieceController.signal);
+          this.boardState[pos]!.piece = rook;
+          rook.addEventListeners();
           break;
       }
     });
@@ -85,23 +92,11 @@ export default class ChessState {
       this.hints.push(toPos);
     });
 
-    // Pawn promotion
-    const promotionMovePos = piece.validMoves!.promote?.move;
-    if (promotionMovePos) {
-      const element = this.boardState[promotionMovePos]!.element;
-
-      element.disabled = false;
-      element.addEventListener(
-        "click",
-        async () => {
-          await this.promotePawn("move", pos, promotionMovePos);
-          this.postOperation();
-        },
-        { signal: this.hintController.signal },
-      );
-      element.classList.add("hint", "promote");
+    const initPopover = (element: HTMLButtonElement) => {
       element.popoverTargetElement = Chess.pawnPromotionPopover;
       element.popoverTargetAction = "toggle";
+
+      this.currentPromotionPopover.push(element);
 
       if (this.pieceFacingDown === this.turn) {
         Chess.pawnPromotionPopover.style.top = "anchor(top)";
@@ -120,6 +115,28 @@ export default class ChessState {
         );
         Chess.pawnPromotionPopover.style.flexDirection = "column-reverse";
       }
+    };
+
+    // Pawn promotion
+    const promotionMovePos = (piece as Pawn).validMoves!.promote?.move;
+    if (promotionMovePos) {
+      const element = this.boardState[promotionMovePos]!.element;
+
+      element.disabled = false;
+      element.addEventListener(
+        "click",
+        async () => {
+          this.pawnPromotionPopoverAnchor?.style.removeProperty("anchor-name");
+          element.style.setProperty("anchor-name", "--promoteCell");
+          this.pawnPromotionPopoverAnchor = element;
+
+          await this.promotePawn("move", pos, promotionMovePos);
+          this.postOperation();
+        },
+        { signal: this.hintController.signal },
+      );
+      element.classList.add("hint", "promote");
+      initPopover(element);
       this.hints.push(promotionMovePos);
     }
 
@@ -132,7 +149,7 @@ export default class ChessState {
     match(
       piece.name,
       {
-        pawn: () => piece.validMoves!.capture.capture,
+        pawn: () => (piece as Pawn).validMoves!.capture.capture,
       },
       Trick<string[]>(piece.validMoves!.capture),
     ).forEach((toPos) => {
@@ -154,9 +171,9 @@ export default class ChessState {
       this.hints.push(toPos);
     });
 
-    // EnPassant capture
     if (piece.name === "pawn") {
-      const enPassantPos = piece.validMoves!.capture.enPassant;
+      // EnPassant capture
+      const enPassantPos = (piece as Pawn).validMoves!.capture.enPassant;
       if (enPassantPos) {
         const element = this.boardState[enPassantPos[0]]!.element;
         assert(element);
@@ -177,20 +194,45 @@ export default class ChessState {
 
         this.hints.push(enPassantPos[0]);
       }
+
+      // Promote by capture
+      (piece as Pawn).validMoves!.promote.capture.forEach((move) => {
+        const element = this.boardState[move]!.element;
+        element.disabled = false;
+        element.classList.add("hint", "promote");
+        element.addEventListener(
+          "click",
+          async () => {
+            this.pawnPromotionPopoverAnchor?.style.removeProperty(
+              "anchor-name",
+            );
+            element.style.setProperty("anchor-name", "--promoteCell");
+            this.pawnPromotionPopoverAnchor = element;
+
+            await this.promotePawn("capture", pos, move);
+            this.postOperation();
+          },
+          { signal: this.hintController.signal },
+        );
+
+        initPopover(element);
+        this.hints.push(move);
+      });
     }
   }
 
   static hideHints() {
+    this.currentHintPos = null;
+
     if (this.hints.length === 0) return;
 
     this.hintController.abort();
-    this.currentHintPos = null;
 
-    if (this.currentPromotionPopover) {
-      this.currentPromotionPopover.popoverTargetElement = null;
-      this.currentPromotionPopover.popoverTargetAction = "";
-      this.currentPromotionPopover = null;
-    }
+    this.currentPromotionPopover.forEach((elem) => {
+      elem.popoverTargetElement = null;
+      elem.popoverTargetAction = "";
+    });
+    this.currentPromotionPopover = [];
 
     this.hints.forEach((hintPos) => {
       const element = this.boardState[hintPos]!.element;

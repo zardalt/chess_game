@@ -1,6 +1,7 @@
 import Board from "./board.js";
 import ChessState from "./chess_state.js";
 import Pawn from "./pieces/pawn.js";
+import Rook from "./pieces/rook.js";
 import { assert } from "./utils.js";
 
 export type PieceImgs = `${PieceType}-${MinifiedPieceColor}`;
@@ -91,7 +92,7 @@ export type KingState = {
   hasCastled: boolean;
 };
 
-export type Pieces = Pawn;
+export type Pieces = Pawn | Rook;
 export type PieceState = PawnState | RookState | KingState;
 
 export type PieceMoves = {

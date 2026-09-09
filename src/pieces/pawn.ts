@@ -7,6 +7,7 @@ import Piece from "./pieces.js";
 export default class Pawn extends Piece<PawnMoves> {
   name: PieceType = "pawn";
   captureMoves: string[] = [];
+  moves: string[] | null = null;
 
   constructor(position: string, signal?: AbortSignal) {
     super(position, signal);
@@ -187,6 +188,4 @@ export default class Pawn extends Piece<PawnMoves> {
 
     fromState.hasMoved = true;
   }
-
-  // TODO: Make pawns capable of promoting
 }
