@@ -1,5 +1,6 @@
 import ChessAnimation, { AnimationType } from "./animation.js";
-import { PieceInfo, PieceColor } from "./chess.js";
+import Chess, { PieceInfo, PieceColor, PieceType } from "./chess.js";
+import { getPawnPromotion } from "./dialog.js";
 import Pawn from "./pieces/pawn.js";
 import { assert, match, Trick, emptyImage } from "./utils.js";
 
@@ -18,6 +19,7 @@ export default class ChessState {
   static pieceFacingDown: PieceColor = "white";
   static hints: string[] = [];
   static currentHintPos: string | null;
+  static currentPromotionPopover: HTMLButtonElement | null = null;
 
   static addEvents() {
     this.pieceController = new AbortController();
@@ -62,14 +64,19 @@ export default class ChessState {
     const piece = this.boardState[pos]!.piece!;
     assert(piece?.validMoves);
 
+    // =================================
+    // MOVE
+    // =================================
+
     piece.validMoves!.move.forEach((toPos) => {
       const element = this.boardState[toPos]!.element;
 
       element.disabled = false;
       element.addEventListener(
         "click",
-        () => {
-          this.movePiece(pos, toPos);
+        async () => {
+          await this.movePiece(pos, toPos);
+          this.postOperation();
         },
         { signal: this.hintController.signal },
       );
@@ -77,6 +84,44 @@ export default class ChessState {
 
       this.hints.push(toPos);
     });
+
+    // Pawn promotion
+    const promotionMovePos = piece.validMoves!.promote?.move;
+    if (promotionMovePos) {
+      const element = this.boardState[promotionMovePos]!.element;
+
+      element.disabled = false;
+      element.addEventListener(
+        "click",
+        async () => {
+          await this.promotePawn("move", pos, promotionMovePos);
+          this.postOperation();
+        },
+        { signal: this.hintController.signal },
+      );
+      element.classList.add("hint", "promote");
+      element.popoverTargetElement = Chess.pawnPromotionPopover;
+      element.popoverTargetAction = "toggle";
+
+      if (this.pieceFacingDown === this.turn) {
+        Chess.pawnPromotionPopover.style.top = "anchor(top)";
+        Chess.pawnPromotionPopover.style.bottom = "unset";
+        Chess.pawnPromotionPopover.style.setProperty(
+          "--pawn-promotion-translate-direction",
+          "-100%",
+        );
+        Chess.pawnPromotionPopover.style.flexDirection = "column";
+      } else {
+        Chess.pawnPromotionPopover.style.top = "unset";
+        Chess.pawnPromotionPopover.style.bottom = "anchor(bottom)";
+        Chess.pawnPromotionPopover.style.setProperty(
+          "--pawn-promotion-translate-direction",
+          "100%",
+        );
+        Chess.pawnPromotionPopover.style.flexDirection = "column-reverse";
+      }
+      this.hints.push(promotionMovePos);
+    }
 
     // =================================
     // CAPTURE
@@ -96,10 +141,11 @@ export default class ChessState {
       element.disabled = false;
       element.addEventListener(
         "click",
-        () => {
-          this.capturePiece(pos, {
+        async () => {
+          await this.capturePiece(pos, {
             toPos,
           });
+          this.postOperation();
         },
         { signal: this.hintController.signal },
       );
@@ -118,11 +164,13 @@ export default class ChessState {
         element.disabled = false;
         element.addEventListener(
           "click",
-          () =>
-            this.capturePiece(pos, {
+          async () => {
+            await this.capturePiece(pos, {
               toPos: enPassantPos[0],
               targetPos: enPassantPos[1],
-            }),
+            });
+            this.postOperation();
+          },
           { signal: this.hintController.signal },
         );
         element.classList.add("hint", "capture");
@@ -138,11 +186,17 @@ export default class ChessState {
     this.hintController.abort();
     this.currentHintPos = null;
 
+    if (this.currentPromotionPopover) {
+      this.currentPromotionPopover.popoverTargetElement = null;
+      this.currentPromotionPopover.popoverTargetAction = "";
+      this.currentPromotionPopover = null;
+    }
+
     this.hints.forEach((hintPos) => {
       const element = this.boardState[hintPos]!.element;
 
       element.disabled = true;
-      element.classList.remove("hint", "move", "capture");
+      element.classList.remove("hint", "move", "capture", "promote");
     });
     this.hints = [];
   }
@@ -169,9 +223,6 @@ export default class ChessState {
     })
       .add(to)
       .delete(from);
-
-    this.switchTurn();
-    ChessAnimation.isAnimating = false;
   }
 
   static async capturePiece(from: string, captureOptions: CaptureOptions) {
@@ -212,11 +263,6 @@ export default class ChessState {
 
       piecePositions[startInd++ % 2]!.add(captureOptions.toPos).delete(from);
       piecePositions[startInd % 2]!.delete(captureOptions.targetPos);
-
-      console.log(this.whitePiecesPos, this.blackPiecesPos);
-
-      this.switchTurn();
-      ChessAnimation.isAnimating = false;
     } else {
       // Default capture
       await new ChessAnimation(
@@ -237,9 +283,40 @@ export default class ChessState {
 
       piecePositions[startInd++ % 2]!.add(captureOptions.toPos).delete(from);
       piecePositions[startInd % 2]!.delete(captureOptions.toPos);
+    }
+  }
 
-      this.switchTurn();
-      ChessAnimation.isAnimating = false;
+  static async promotePawn(
+    operationType: "move" | "capture",
+    fromPos: string,
+    toPos: string,
+  ) {
+    const promoteTo = await getPawnPromotion();
+
+    switch (operationType) {
+      case "move":
+        await this.movePiece(fromPos, toPos);
+        break;
+      case "capture":
+        await this.capturePiece(fromPos, {
+          toPos,
+        });
+    }
+
+    const pieceInfo = this.boardState[toPos]!;
+
+    const newImg = Chess.getImgPath(promoteTo + `-${this.turn[0]}`);
+
+    pieceInfo.element.querySelector("img")!.src = newImg;
+    pieceInfo.img = newImg;
+
+    pieceInfo.pieceName = promoteTo as PieceType;
+    if (promoteTo === "rook") {
+      pieceInfo.pieceState = {
+        hasMoved: true,
+      };
+    } else {
+      delete pieceInfo.pieceState;
     }
   }
 
@@ -257,6 +334,11 @@ export default class ChessState {
     toInfo.element!.appendChild(fromImg.cloneNode());
     fromImg.remove();
     fromInfo.element!.appendChild(emptyImage.cloneNode());
+  }
+
+  static postOperation() {
+    this.switchTurn();
+    ChessAnimation.isAnimating = false;
   }
 
   static updateState(

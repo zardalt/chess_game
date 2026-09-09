@@ -8,6 +8,7 @@ export type PieceImgs = `${PieceType}-${MinifiedPieceColor}`;
 type Chess = {
   rankNotation: "abcdefgh";
   fileNotation: "12345678";
+  pawnPromotionPopover: HTMLDivElement;
   convertNumericPosToAlpha(n: number): string;
   piecesImgs: Record<string, PieceImgs>;
   getImgPath(piece: string): string;
@@ -18,6 +19,9 @@ type Chess = {
 const Chess: Chess = {
   rankNotation: "abcdefgh",
   fileNotation: "12345678",
+  pawnPromotionPopover: document.getElementById(
+    "pawnPromotion",
+  ) as HTMLDivElement,
   convertNumericPosToAlpha(n) {
     const rank = this.rankNotation[n % 8]!;
     const file = this.fileNotation[Math.floor(n / 8)];

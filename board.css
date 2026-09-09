@@ -33,8 +33,9 @@
 
   --full: calc(infinity * 1px);
 
-  --move: #90b800;
+  --move: #1dced8;
   --capture: purple;
+  --promote: #90b800;
 }
 
 body {
@@ -143,5 +144,75 @@ button {
 
   &.capture::before {
     background-color: var(--capture);
+  }
+
+  &.promote {
+    anchor-name: --promoteCell;
+
+    &::before {
+      background-color: var(--promote);
+    }
+  }
+}
+
+/* ================================= */
+/* POPOVERS */
+/* ================================= */
+
+#pawnPromotion {
+  position: absolute;
+  position-anchor: --promoteCell;
+  position-area: right;
+  top: anchor(top);
+  --pawn-promotion-translate-direction: -100%;
+
+  transition:
+    scale ease-out 100ms,
+    border-color ease-out 100ms 450ms;
+
+  &:popover-open {
+    display: flex;
+  }
+
+  flex-direction: column;
+  background-color: transparent;
+  border: 2px solid color-mix(in srgb, var(--accent) 75%, black);
+
+  & > button {
+    padding: 0.5em;
+    transition: translate ease-out 250ms 200ms;
+
+    &:nth-child(2n + 1) {
+      background-color: var(--accent);
+    }
+
+    &:nth-child(2n) {
+      background-color: var(--primary);
+    }
+
+    & > img {
+      width: 3.5em;
+    }
+  }
+}
+
+@starting-style {
+  #pawnPromotion {
+    scale: 0.8;
+    border-color: transparent;
+
+    & button {
+      &:nth-child(2) {
+        translate: 0 calc(var(--pawn-promotion-translate-direction) * 1);
+      }
+
+      &:nth-child(3) {
+        translate: 0 calc(var(--pawn-promotion-translate-direction) * 2);
+      }
+
+      &:nth-child(4) {
+        translate: 0 calc(var(--pawn-promotion-translate-direction) * 3);
+      }
+    }
   }
 }
