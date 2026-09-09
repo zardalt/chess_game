@@ -1,6 +1,5 @@
 import Chess, { PieceMoves, PieceType, RookState } from "../chess.js";
 import ChessState from "../chess_state.js";
-import { match } from "../utils.js";
 import Piece from "./pieces.js";
 
 export default class Rook extends Piece<PieceMoves> {
@@ -22,67 +21,31 @@ export default class Rook extends Piece<PieceMoves> {
     // South
     // East
 
-    // North:
-    //  white - same letter, reducing number
-    //  black - same letter, increasing number
-
     this.moves.push([]);
     try {
       for (let i = 1; true; i++) {
-        this.moves[0]!.push(
-          match(ChessState.turn, {
-            white: () => Chess.offsetPosition(this.position, [0, -i]),
-            black: () => Chess.offsetPosition(this.position, [0, i]),
-          }),
-        );
+        this.moves[0]!.push(Chess.offsetPosition(this.position, [0, -i]));
       }
     } catch {}
 
-    // East:
-    //  white - increasing letter, same number
-    //  black - decreasing letter, same number
-
     this.moves.push([]);
     try {
       for (let i = 1; true; i++) {
-        this.moves[1]!.push(
-          match(ChessState.turn, {
-            white: () => Chess.offsetPosition(this.position, [i, 0]),
-            black: () => Chess.offsetPosition(this.position, [-i, 0]),
-          }),
-        );
+        this.moves[1]!.push(Chess.offsetPosition(this.position, [i, 0]));
       }
     } catch {}
 
-    // South:
-    //  white - same letter, increasing number
-    //  black - same letter, decreasing number
-
     this.moves.push([]);
     try {
       for (let i = 1; true; i++) {
-        this.moves[2]!.push(
-          match(ChessState.turn, {
-            white: () => Chess.offsetPosition(this.position, [0, i]),
-            black: () => Chess.offsetPosition(this.position, [0, -i]),
-          }),
-        );
+        this.moves[2]!.push(Chess.offsetPosition(this.position, [0, i]));
       }
     } catch {}
 
-    // West
-    //  white - decreasing letter, same number
-    //  black - increasing letter, same number
-
     this.moves.push([]);
     try {
       for (let i = 1; true; i++) {
-        this.moves[3]!.push(
-          match(ChessState.turn, {
-            white: () => Chess.offsetPosition(this.position, [-i, 0]),
-            black: () => Chess.offsetPosition(this.position, [i, 0]),
-          }),
-        );
+        this.moves[3]!.push(Chess.offsetPosition(this.position, [-i, 0]));
       }
     } catch {}
   }
