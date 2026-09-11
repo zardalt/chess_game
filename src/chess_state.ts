@@ -1,5 +1,5 @@
 import ChessAnimation, { AnimationType } from "./animation.js";
-import Chess, { PieceInfo, PieceColor, PieceType } from "./chess.js";
+import Chess, { PieceInfo, PieceColor, PieceType, KingMoves } from "./chess.js";
 import { getPawnPromotion } from "./dialog.js";
 import Bishop from "./pieces/bishop.js";
 import King from "./pieces/king.js";
@@ -28,6 +28,8 @@ export default class ChessState {
   static pawnPromotionPopoverAnchor: HTMLButtonElement | null = null;
 
   static addEvents() {
+    console.log(this.whitePiecesPos, this.blackPiecesPos);
+
     this.pieceController = new AbortController();
     match(this.turn, {
       white: () => this.whitePiecesPos,
@@ -243,6 +245,34 @@ export default class ChessState {
         this.hints.push(move);
       });
     }
+
+    // =====================================
+    // CASTLE
+    // =====================================
+
+    if (
+      piece.name === "king" &&
+      (piece.validMoves as KingMoves).castle.length !== 0
+    ) {
+      (piece.validMoves as KingMoves).castle.forEach(
+        ([kingNewPos, rookFormerPos, rookNewPos]) => {
+          const element = this.boardState[kingNewPos]!.element;
+
+          element.disabled = false;
+          element.addEventListener(
+            "click",
+            async () => {
+              await this.castleKing(pos, kingNewPos, rookFormerPos, rookNewPos);
+              this.postOperation();
+            },
+            { signal: this.hintController.signal },
+          );
+          element.classList.add("hint", "move");
+
+          this.hints.push(kingNewPos);
+        },
+      );
+    }
   }
 
   static hideHints() {
@@ -384,6 +414,49 @@ export default class ChessState {
     } else {
       delete pieceInfo.pieceState;
     }
+  }
+
+  static async castleKing(
+    kingCurrentPos: string,
+    kingNewPos: string,
+    rookCurrentPos: string,
+    rookNewPos: string,
+  ) {
+    this.hideHints();
+
+    await new ChessAnimation(
+      ["move", "move"],
+      [
+        { fromPos: kingCurrentPos, toPos: kingNewPos },
+        { fromPos: rookCurrentPos, toPos: rookNewPos },
+      ],
+    ).finished;
+
+    // update state
+    // update pieces
+
+    const kingFromInfo = ChessState.boardState[kingCurrentPos]!;
+    const kingToInfo = ChessState.boardState[kingNewPos]!;
+
+    const rookFromInfo = this.boardState[rookCurrentPos]!;
+    const rookToInfo = this.boardState[rookNewPos]!;
+
+    kingFromInfo.element.disabled = true;
+    rookFromInfo.element.disabled = true;
+    this.postMove(kingFromInfo, kingToInfo);
+    this.postMove(rookFromInfo, rookToInfo);
+    kingFromInfo.piece!.pieceCallback(kingNewPos);
+    rookFromInfo.piece!.pieceCallback(rookNewPos);
+    this.updateState("move", kingFromInfo, kingToInfo);
+    this.updateState("move", rookFromInfo, rookToInfo);
+
+    const piecePosSet = match(this.turn, {
+      white: () => this.whitePiecesPos,
+      black: () => this.blackPiecesPos,
+    });
+
+    piecePosSet.add(kingNewPos).add(rookNewPos).delete(kingCurrentPos);
+    piecePosSet.delete(rookCurrentPos);
   }
 
   static postMove(fromInfo: PieceInfo, toInfo: PieceInfo) {

@@ -120,7 +120,7 @@ export type PawnMoves = {
   };
 };
 export type KingMoves = PieceMoves & {
-  castle: string[];
+  castle: [string, string, string][];
 };
 
 export type PieceInfo = {
