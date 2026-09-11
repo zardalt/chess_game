@@ -6,7 +6,7 @@
   - ~~Pawn~~
   - ~~Rook~~
   - ~~Knight~~
-  - Bishop
+  - ~~Bishop~~
   - Queen
   - King
 

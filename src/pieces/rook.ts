@@ -13,7 +13,7 @@ export default class Rook extends Piece<PieceMoves> {
   calculateMoves(): void {
     if (this.moves) return;
 
-    this.moves = [];
+    this.moves = [[], [], [], []];
 
     // Rook can move in the 4 cardinal directions
     // North
@@ -21,33 +21,10 @@ export default class Rook extends Piece<PieceMoves> {
     // South
     // East
 
-    this.moves.push([]);
-    try {
-      for (let i = 1; true; i++) {
-        this.moves[0]!.push(Chess.offsetPosition(this.position, [0, -i]));
-      }
-    } catch {}
-
-    this.moves.push([]);
-    try {
-      for (let i = 1; true; i++) {
-        this.moves[1]!.push(Chess.offsetPosition(this.position, [i, 0]));
-      }
-    } catch {}
-
-    this.moves.push([]);
-    try {
-      for (let i = 1; true; i++) {
-        this.moves[2]!.push(Chess.offsetPosition(this.position, [0, i]));
-      }
-    } catch {}
-
-    this.moves.push([]);
-    try {
-      for (let i = 1; true; i++) {
-        this.moves[3]!.push(Chess.offsetPosition(this.position, [-i, 0]));
-      }
-    } catch {}
+    this.calculate(0, -1);
+    this.calculate(0, 1);
+    this.calculate(1, 0);
+    this.calculate(-1, 0);
   }
 
   calculateValidMoves(): void {

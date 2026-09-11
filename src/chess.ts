@@ -1,5 +1,6 @@
 import Board from "./board.js";
 import ChessState from "./chess_state.js";
+import Bishop from "./pieces/bishop.js";
 import Knight from "./pieces/knight.js";
 import Pawn from "./pieces/pawn.js";
 import Rook from "./pieces/rook.js";
@@ -93,7 +94,7 @@ export type KingState = {
   hasCastled: boolean;
 };
 
-export type Pieces = Pawn | Rook | Knight;
+export type Pieces = Pawn | Rook | Knight | Bishop;
 export type PieceState = PawnState | RookState | KingState;
 
 export type PieceMoves = {

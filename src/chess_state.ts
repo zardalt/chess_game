@@ -1,6 +1,7 @@
 import ChessAnimation, { AnimationType } from "./animation.js";
 import Chess, { PieceInfo, PieceColor, PieceType } from "./chess.js";
 import { getPawnPromotion } from "./dialog.js";
+import Bishop from "./pieces/bishop.js";
 import Knight from "./pieces/knight.js";
 import Pawn from "./pieces/pawn.js";
 import Rook from "./pieces/rook.js";
@@ -50,6 +51,11 @@ export default class ChessState {
           const knight = new Knight(pos, this.pieceController.signal);
           this.boardState[pos]!.piece = knight;
           knight.addEventListeners();
+          break;
+        case "bishop":
+          const bishop = new Bishop(pos, this.pieceController.signal);
+          this.boardState[pos]!.piece = bishop;
+          bishop.addEventListeners();
           break;
       }
     });
