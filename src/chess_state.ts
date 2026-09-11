@@ -4,6 +4,7 @@ import { getPawnPromotion } from "./dialog.js";
 import Bishop from "./pieces/bishop.js";
 import Knight from "./pieces/knight.js";
 import Pawn from "./pieces/pawn.js";
+import Queen from "./pieces/queen.js";
 import Rook from "./pieces/rook.js";
 import { assert, match, Trick, emptyImage } from "./utils.js";
 
@@ -56,6 +57,11 @@ export default class ChessState {
           const bishop = new Bishop(pos, this.pieceController.signal);
           this.boardState[pos]!.piece = bishop;
           bishop.addEventListeners();
+          break;
+        case "queen":
+          const queen = new Queen(pos, this.pieceController.signal);
+          this.boardState[pos]!.piece = queen;
+          queen.addEventListeners();
           break;
       }
     });

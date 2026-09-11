@@ -3,6 +3,7 @@ import ChessState from "./chess_state.js";
 import Bishop from "./pieces/bishop.js";
 import Knight from "./pieces/knight.js";
 import Pawn from "./pieces/pawn.js";
+import Queen from "./pieces/queen.js";
 import Rook from "./pieces/rook.js";
 import { assert } from "./utils.js";
 
@@ -94,7 +95,7 @@ export type KingState = {
   hasCastled: boolean;
 };
 
-export type Pieces = Pawn | Rook | Knight | Bishop;
+export type Pieces = Pawn | Rook | Knight | Bishop | Queen;
 export type PieceState = PawnState | RookState | KingState;
 
 export type PieceMoves = {

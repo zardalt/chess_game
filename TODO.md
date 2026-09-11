@@ -7,9 +7,9 @@
   - ~~Rook~~
   - ~~Knight~~
   - ~~Bishop~~
-  - Queen
+  - ~~Queen~~
   - King
 
 ## Pawns
 
-- ~~Implement pawn promotion logic~~
+- s~~~Implement pawn promotion logic~~
