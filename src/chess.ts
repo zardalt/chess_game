@@ -1,6 +1,7 @@
 import Board from "./board.js";
 import ChessState from "./chess_state.js";
 import Bishop from "./pieces/bishop.js";
+import King from "./pieces/king.js";
 import Knight from "./pieces/knight.js";
 import Pawn from "./pieces/pawn.js";
 import Queen from "./pieces/queen.js";
@@ -12,6 +13,8 @@ export type PieceImgs = `${PieceType}-${MinifiedPieceColor}`;
 type Chess = {
   rankNotation: "abcdefgh";
   fileNotation: "12345678";
+  whiteKingDefPos: "e8";
+  blackKingDefPos: "e1";
   pawnPromotionPopover: HTMLDivElement;
   convertNumericPosToAlpha(n: number): string;
   piecesImgs: Record<string, PieceImgs>;
@@ -26,6 +29,8 @@ const Chess: Chess = {
   pawnPromotionPopover: document.getElementById(
     "pawnPromotion",
   ) as HTMLDivElement,
+  whiteKingDefPos: "e8",
+  blackKingDefPos: "e1",
   convertNumericPosToAlpha(n) {
     const rank = this.rankNotation[n % 8]!;
     const file = this.fileNotation[Math.floor(n / 8)];
@@ -93,9 +98,10 @@ export type RookState = {
 };
 export type KingState = {
   hasCastled: boolean;
+  hasMoved: boolean;
 };
 
-export type Pieces = Pawn | Rook | Knight | Bishop | Queen;
+export type Pieces = Pawn | Rook | Knight | Bishop | Queen | King;
 export type PieceState = PawnState | RookState | KingState;
 
 export type PieceMoves = {
